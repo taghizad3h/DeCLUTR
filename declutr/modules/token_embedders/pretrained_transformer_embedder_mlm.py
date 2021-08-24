@@ -70,6 +70,11 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
                         train_parameters = train_parameters, last_layer_only = last_layer_only, override_weights_file = override_weights_file,
                         gradient_checkpointing = gradient_checkpointing, tokenizer_kwargs=tokenizer_kwargs, transformer_kwargs = transformer_kwargs)
         
+        tokenizer = PretrainedTransformerTokenizer(
+            model_name,
+            tokenizer_kwargs=tokenizer_kwargs,
+        )
+
         self.masked_language_modeling = masked_language_modeling
 
         if self.masked_language_modeling:
