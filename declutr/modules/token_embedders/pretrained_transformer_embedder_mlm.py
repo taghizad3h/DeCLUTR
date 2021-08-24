@@ -66,7 +66,7 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
         masked_language_modeling: bool = True,
     ) -> None:
         # TokenEmbedder.__init__(self)  # Call the base class constructor
-        super().__init(model_name, max_length=max_length, sub_module=sub_module,
+        super().__init__(model_name, max_length=max_length, sub_module=sub_module,
                         train_parameters = train_parameters, last_layer_only = last_layer_only, override_weights_file = override_weights_file,
                         gradient_checkpointing = gradient_checkpointing, tokenizer_kwargs=tokenizer_kwargs, transformer_kwargs = transformer_kwargs)
         
