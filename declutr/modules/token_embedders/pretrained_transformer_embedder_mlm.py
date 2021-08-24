@@ -14,11 +14,8 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
     """
     This is a wrapper around `PretrainedTransformerEmbedder` that allows us to train against a
     masked language modelling objective while we are embedding text.
-
     Registered as a `TokenEmbedder` with name "pretrained_transformer_mlm".
-
     # Parameters
-
     model_name : `str`
         The name of the `transformers` model to use. Should be the same as the corresponding
         `PretrainedTransformerIndexer`.
@@ -68,15 +65,17 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
         transformer_kwargs: Optional[Dict[str, Any]] = None,
         masked_language_modeling: bool = True,
     ) -> None:
-        super().__init__()
-#         TokenEmbedder.__init__(self)  # Call the base class constructor
-        tokenizer = PretrainedTransformerTokenizer(model_name, tokenizer_kwargs=tokenizer_kwargs)
+        # TokenEmbedder.__init__(self)  # Call the base class constructor
+        super().__init(model_name, max_length=max_length, sub_module=sub_module,
+                        train_parameters = train_parameters, last_layer_only = last_layer_only, override_weights_file = override_weights_file,
+                        gradient_checkpointing = gradient_checkpointing, tokenizer_kwargs=tokenizer_kwargs, transformer_kwargs = transformer_kwargs)
+        
         self.masked_language_modeling = masked_language_modeling
 
         if self.masked_language_modeling:
             self.config = AutoConfig.from_pretrained(model_name, output_hidden_states=True)
             # We only need access to the HF tokenizer if we are masked language modeling
-            self.tokenizer = tokenizer.tokenizer
+            self.tokenizer = self.tokenizer.tokenizer
             # The only differences when masked language modeling are:
             # 1) `output_hidden_states` must be True to get access to token embeddings.
             # 2) We need to use `AutoModelForMaskedLM` to get the correct model
@@ -93,30 +92,10 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
             )
             self.config = self.transformer_model.config
 
-        if gradient_checkpointing is not None:
-            self.transformer_model.config.update({"gradient_checkpointing": gradient_checkpointing})
-
-        if sub_module:
-            assert hasattr(self.transformer_model, sub_module)
-            self.transformer_model = getattr(self.transformer_model, sub_module)
-        self._max_length = max_length
-
-        # I'm not sure if this works for all models; open an issue on github if you find a case
-        # where it doesn't work.
-        self.output_dim = self.config.hidden_size
-
-        self._scalar_mix: Optional[ScalarMix] = None
-        if not last_layer_only:
-            self._scalar_mix = ScalarMix(self.config.num_hidden_layers)
-            self.config.output_hidden_states = True
-
-        self._num_added_start_tokens = len(tokenizer.single_sequence_start_tokens)
-        self._num_added_end_tokens = len(tokenizer.single_sequence_end_tokens)
+        self._num_added_start_tokens = len(self.tokenizer.single_sequence_start_tokens)
+        self._num_added_end_tokens = len(self.tokenizer.single_sequence_end_tokens)
         self._num_added_tokens = self._num_added_start_tokens + self._num_added_end_tokens
 
-        if not train_parameters:
-            for param in self.transformer_model.parameters():
-                param.requires_grad = False
 
     @overrides
     def forward(
@@ -129,7 +108,6 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
     ) -> Union[Tuple[torch.FloatTensor, torch.Tensor], torch.Tensor]:  # type: ignore
         """
         # Parameters
-
         token_ids: `torch.LongTensor`
             Shape: `[batch_size, num_wordpieces if max_length is None else num_segment_concat_wordpieces]`.
             num_segment_concat_wordpieces is num_wordpieces plus special tokens inserted in the
@@ -142,9 +120,7 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
             Shape: `[batch_size, num_segment_concat_wordpieces]`.
         masked_lm_labels: `Optional[torch.LongTensor]`
             Shape: `[batch_size, num_wordpieces]`.
-
         # Returns:
-
         If `self.masked_language_modeling`, returns a `Tuple` of the masked language modeling loss
         and a `torch.Tensor` of shape: `[batch_size, num_wordpieces, embedding_size]`. Otherwise,
         returns only the `torch.Tensor` of shape: `[batch_size, num_wordpieces, embedding_size]`.
