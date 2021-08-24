@@ -68,7 +68,8 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
         transformer_kwargs: Optional[Dict[str, Any]] = None,
         masked_language_modeling: bool = True,
     ) -> None:
-        TokenEmbedder.__init__(self)  # Call the base class constructor
+        super().__init__()
+#         TokenEmbedder.__init__(self)  # Call the base class constructor
         tokenizer = PretrainedTransformerTokenizer(model_name, tokenizer_kwargs=tokenizer_kwargs)
         self.masked_language_modeling = masked_language_modeling
 
