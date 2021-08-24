@@ -80,7 +80,7 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
         if self.masked_language_modeling:
             self.config = AutoConfig.from_pretrained(model_name, output_hidden_states=True)
             # We only need access to the HF tokenizer if we are masked language modeling
-            self.tokenizer = self.tokenizer.tokenizer
+            self.tokenizer = tokenizer.tokenizer
             # The only differences when masked language modeling are:
             # 1) `output_hidden_states` must be True to get access to token embeddings.
             # 2) We need to use `AutoModelForMaskedLM` to get the correct model
@@ -97,8 +97,8 @@ class PretrainedTransformerEmbedderMLM(PretrainedTransformerEmbedder):
             )
             self.config = self.transformer_model.config
 
-        self._num_added_start_tokens = len(self.tokenizer.single_sequence_start_tokens)
-        self._num_added_end_tokens = len(self.tokenizer.single_sequence_end_tokens)
+        self._num_added_start_tokens = len(tokenizer.single_sequence_start_tokens)
+        self._num_added_end_tokens = len(tokenizer.single_sequence_end_tokens)
         self._num_added_tokens = self._num_added_start_tokens + self._num_added_end_tokens
 
 
