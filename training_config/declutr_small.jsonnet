@@ -12,11 +12,11 @@ local min_length = 32;
     },
     "dataset_reader": {
         "type": "declutr",
-        "lazy": true,
         "num_anchors": 2,
         "num_positives": 2,
         "max_span_len": max_length,
         "min_span_len": min_length,
+        "manual_multiprocess_sharding": true,
         "tokenizer": {
             "type": "pretrained_transformer",
             "model_name": transformer_model,
@@ -58,10 +58,13 @@ local min_length = 32;
         "batch_size": 4,
         "num_workers": 1,
         "drop_last": true,
+        "max_instances_in_memory": 8 * 100, 
+        "batches_per_epoch": 1024,
     },
     "trainer": {
         // Set use_amp to true to use automatic mixed-precision during training (if your GPU supports it)
         "use_amp": true,
+        "run_confidence_checks": false,
         "optimizer": {
             "type": "huggingface_adamw",
             "lr": 5e-5,
@@ -76,7 +79,7 @@ local min_length = 32;
         "num_epochs": 1,
         "checkpointer": {
             // A value of null or -1 will save the weights of the model at the end of every epoch
-            "num_serialized_models_to_keep": -1,
+            "keep_most_recent_by_count": null,
         },
         "grad_norm": 1.0,
         "learning_rate_scheduler": {
