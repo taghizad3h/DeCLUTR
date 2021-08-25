@@ -1,5 +1,7 @@
 # DeCLUTR: Deep Contrastive Learning for Unsupervised Textual Representations
 
+# !!! In this fork dependencies are updated !!!
+
 ![build](https://github.com/JohnGiorgi/declutr/workflows/build/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/JohnGiorgi/DeCLUTR/branch/master/graph/badge.svg)](https://codecov.io/gh/JohnGiorgi/DeCLUTR)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
